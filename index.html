@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zeqqe.dev - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #0b0c0d;
+            color: #E5E7EB;
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+        }
+        
+        .glowing-text {
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .glowing-bio {
+            text-shadow: 0 0 3px rgba(156, 163, 175, 0.3);
+        }
+        
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.7;
+            z-index: -1;
+            transform: translate3d(0, 0, 0);
+            animation: fadeAndMove 20s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            background: #5865F2;
+            width: 200px;
+            height: 200px;
+            top: -50px;
+            left: -50px;
+            animation-duration: 22s;
+        }
+
+        .blob-2 {
+            background: #fc2a7e;
+            width: 150px;
+            height: 150px;
+            bottom: -20px;
+            right: -20px;
+            animation-duration: 18s;
+        }
+
+        .blob-3 {
+            background: #406de8;
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 25s;
+        }
+
+        @media (min-width: 640px) {
+            .blob-1 { width: 350px; height: 350px; top: -100px; left: -100px; }
+            .blob-2 { width: 300px; height: 300px; bottom: -50px; right: -50px; }
+            .blob-3 { width: 250px; height: 250px; }
+        }
+
+        @keyframes fadeAndMove {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -20px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(40px, -40px) scale(1.2); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        .project-card, .profile-segment {
+            background: rgba(18, 20, 23, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        #projects-container {
+            transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 0 15px rgba(64, 109, 232, 0.4);
+        }
+        
+        .project-card.expanded-card {
+            grid-column: span 3 / span 3;
+            padding: 0;
+            overflow-y: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            border-radius: 0;
+            box-shadow: none;
+            background: rgba(18, 20, 23, 0.8);
+            transform: scale(1);
+        }
+
+        .project-card.expanded-card .readme-content {
+            padding-bottom: 24px;
+        }
+
+        .project-card.expanded-card .project-card-header {
+            border-bottom: 1px solid rgba(45, 55, 72, 0.5);
+            margin-bottom: 0;
+        }
+        
+        .project-card.scale-down-card {
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .project-card-header {
+            padding: 24px;
+        }
+
+        .readme-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        .readme-content.expanded {
+            max-height: 2000px;
+            opacity: 1;
+            border-top: 1px solid rgba(45, 55, 72, 0.5);
+        }
+
+        .readme-content .markdown-container {
+            padding: 24px;
+            padding-top: 0;
+        }
+
+        /* More specific fix for the top margin of the first child element */
+        .readme-content.expanded .markdown-container h3:first-of-type,
+        .readme-content.expanded .markdown-container p:first-of-type,
+        .readme-content.expanded .markdown-container ul:first-of-type,
+        .readme-content.expanded .markdown-container ol:first-of-type,
+        .readme-content.expanded .markdown-container pre:first-of-type,
+        .readme-content.expanded .markdown-container blockquote:first-of-type {
+            margin-top: 0 !important;
+        }
+        
+        /* Custom Markdown Rendering Styles */
+        .markdown-container h1, .markdown-container h2, .markdown-container h3, .markdown-container h4, .markdown-container h5, .markdown-container h6 {
+            color: #E5E7EB;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        .markdown-container h1 { font-size: 2em; border-bottom: 1px solid #2d3748; padding-bottom: 0.3em; }
+        .markdown-container h2 { font-size: 1.5em; border-bottom: 1px solid #2d3748; padding-bottom: 0.3em; }
+        .markdown-container h3 { font-size: 1.25em; }
+
+        .markdown-container p {
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .markdown-container a {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+        
+        .markdown-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            display: block;
+            margin: 16px 0;
+        }
+
+        /* Updated Data Table Styling */
+        .markdown-container table {
+            width: auto;
+            table-layout: auto;
+            border-collapse: collapse;
+            margin: 16px 0;
+            background-color: rgba(18, 20, 23, 0.7);
+        }
+        .markdown-container th, .markdown-container td {
+            border: 1px solid rgba(45, 55, 72, 0.7);
+            padding: 12px;
+            text-align: left;
+        }
+        .markdown-container th {
+            font-weight: normal;
+            background-color: transparent;
+        }
+        .markdown-container table thead tr {
+            background-color: transparent;
+        }
+
+        .markdown-container pre {
+            background-color: #1a202c;
+            padding: 16px;
+            padding-right: 48px; /* Add extra padding to the right to make room for the copy button */
+            overflow-x: auto;
+            border-radius: 6px;
+            border: 1px solid #2d3748;
+            position: relative;
+        }
+        
+        .markdown-container pre > code {
+            font-family: monospace;
+            color: #93c5fd;
+            padding: 0;
+            display: block;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(64, 109, 232, 0.4);
+            border: none;
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .markdown-container pre:hover .copy-button {
+            opacity: 1;
+        }
+        
+        .copy-button:hover {
+            background-color: rgba(64, 109, 232, 0.6);
+        }
+
+        /* Styling for the copy icon image */
+        .copy-button img {
+            width: 16px;
+            height: 16px;
+            border-radius: 0;
+            filter: invert(1);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Music button styling */
+        @keyframes pulse-btn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .music-toggle-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+            background-color: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 10px rgba(15, 23, 42, 0.5);
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #4B5563;
+        }
+        .music-toggle-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(15, 23, 42, 0.8);
+        }
+        .music-toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        .markdown-container p code, .markdown-container li code {
+            color: #93c5fd;
+            background-color: #1a202c;
+            padding: 2px 4px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .markdown-container blockquote {
+            margin: 0;
+            padding: 0 1em;
+            color: #9ca3af;
+            border-left: 0.25em solid #4a5568;
+        }
+
+        .markdown-container ul, .markdown-container ol {
+            padding-left: 2em;
+            margin-bottom: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .markdown-container {
+                padding: 15px;
+            }
+        }
+    </style>
+    
+    <link rel="icon" href="https://media.discordapp.net/stickers/1394832827450654811.png?size=160&name=my+apolocheese" type="image/png">
+    <meta property="og:title" content="zeqqe.dev - Portfolio" />
+    <meta property="og:description" content="A list of Zeqqqe's public projects from GitHub." />
+    <meta property="og:image" content="https://media.discordapp.net/stickers/1394832827450654811.png?size=160&name=my+apolocheese" />
+    <meta property="og:url" content="https://projects.zeqqe.dev" />
+    <meta property="og:type" content="website" />
+</head>
+<body class="bg-[#0b0c0d] text-gray-200 antialiased relative">
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="music-toggle" class="music-toggle-btn p-3 rounded-full text-white shadow-xl focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50" style="animation: pulse-btn 2s infinite cubic-bezier(0.4, 0, 0.6, 1);">
+            <svg id="music-icon-play" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+            </svg>
+            <svg id="music-icon-pause" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.9 8.892V5l-1.9-.95M16 16v-3.5" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+                <line x1="2" x2="22" y1="2" y2="22" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="flex flex-col items-center min-h-screen p-4 relative z-10">
+        
+        <div class="w-full max-w-7xl mx-auto mt-12 mb-8 rounded-lg profile-segment flex flex-col lg:flex-row items-center lg:items-start text-center lg:text-left p-6">
+            <div class="flex-shrink-0 flex flex-col items-center lg:items-start mr-0 lg:mr-8 mb-6 lg:mb-0">
+                <img id="profile-img" src="" alt="GitHub Profile" class="w-28 h-28 rounded-full border-4 border-slate-700 shadow-md mb-4" style="display:none;">
+                <h1 id="profile-name" class="text-3xl font-bold mb-1 glowing-text" style="display:none;"></h1>
+                <p id="profile-bio" class="text-sm text-gray-400 glowing-bio max-w-sm" style="display:none;"></p>
+                <div id="profile-stats" class="mt-4 flex space-x-4 text-gray-400">
+                    </div>
+            </div>
+            
+            <div id="readme-content" class="flex-grow w-full markdown-container" style="display:none;">
+                <p class="text-center text-gray-400">Loading profile README...</p>
+            </div>
+        </div>
+
+        <h2 id="projects-title" class="text-4xl font-bold mb-8 glowing-text text-center">My Projects</h2>
+        
+        <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl w-full">
+            <div class="p-8 text-center col-span-full">
+                <p class="text-xl font-semibold text-gray-400">Loading projects...</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <audio id="background-music" loop>
+        <source src="https://link-ee5.pages.dev/Lofi.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.3.2/markdown-it.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = 'Zeqqqe';
+            const md = new markdownit();
+            const copyIconUrl = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficon-library.com%2Fimages%2Fcopy-icon-png%2Fcopy-icon-png-28.jpg&f=1&nofb=1&ipt=c29907b2659459926ddb6fe1fe43da72c563be8e74db4b3c3f0f3c76340c7a3b';
+            const checkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>`;
+            const projectsTitle = document.getElementById('projects-title');
+            let originalCardRect = {};
+
+            const replaceRelativeImageUrls = (htmlContent, user, repo) => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                const images = doc.querySelectorAll('img');
+
+                images.forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && !src.startsWith('http')) {
+                        const newSrc = `https://raw.githubusercontent.com/${user}/${repo}/main/${src}`;
+                        img.setAttribute('src', newSrc);
+                    }
+                });
+                return doc.body.innerHTML;
+            };
+
+            const addCopyButtons = (container) => {
+                const preElements = container.querySelectorAll('pre');
+                preElements.forEach(pre => {
+                    const button = document.createElement('button');
+                    button.className = 'copy-button';
+                    button.innerHTML = `<img src="${copyIconUrl}" alt="Copy Icon">`;
+                    pre.appendChild(button);
+
+                    button.addEventListener('click', async () => {
+                        const code = pre.querySelector('code').innerText;
+                        try {
+                            await navigator.clipboard.writeText(code);
+                            button.innerHTML = checkIconSVG;
+                            button.style.backgroundColor = 'rgba(74, 222, 128, 0.4)';
+
+                            setTimeout(() => {
+                                button.innerHTML = `<img src="${copyIconUrl}" alt="Copy Icon">`;
+                                button.style.backgroundColor = 'rgba(64, 109, 232, 0.4)';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy text: ', err);
+                        }
+                    });
+                });
+            };
+
+            const fetchProfileData = async () => {
+                try {
+                    const response = await fetch(`https://api.github.com/users/${username}`);
+                    if (!response.ok) {
+                        throw new Error('Could not fetch user data.');
+                    }
+                    const user = await response.json();
+                    
+                    document.getElementById('profile-img').src = user.avatar_url;
+                    document.getElementById('profile-img').style.display = 'block';
+                    document.getElementById('profile-name').innerText = user.login;
+                    document.getElementById('profile-name').style.display = 'block';
+                    document.getElementById('profile-bio').innerText = user.bio || 'No bio provided.';
+                    document.getElementById('profile-bio').style.display = 'block';
+
+                    const statsContainer = document.getElementById('profile-stats');
+                    statsContainer.innerHTML = `
+                        <div class="flex items-center space-x-1">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 10H5a2 2 0 00-2 2v2a2 2 0 002 2h2v-4zM11 10H9a2 2 0 00-2 2v2a2 2 0 002 2h2v-4zM15 10h-2a2 2 0 00-2 2v2a2 2 0 002 2h2v-4z"></path></svg>
+                            <span>${user.public_repos} Repos</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path></svg>
+                            <span>${user.followers} Followers</span>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    console.error('Error fetching GitHub profile:', error);
+                    document.querySelector('.profile-segment').style.display = 'none';
+                }
+            };
+
+            const fetchReadme = async () => {
+                const readmeContainer = document.getElementById('readme-content');
+                try {
+                    const response = await fetch(`https://raw.githubusercontent.com/${username}/${username}/main/README.md`);
+                    if (!response.ok) {
+                        readmeContainer.style.display = 'none';
+                        return;
+                    }
+                    
+                    const decodedContent = await response.text();
+                    
+                    let renderedHtml = md.render(decodedContent);
+                    renderedHtml = replaceRelativeImageUrls(renderedHtml, username, username);
+
+                    readmeContainer.innerHTML = renderedHtml;
+                    addCopyButtons(readmeContainer);
+                    readmeContainer.style.display = 'block';
+
+                } catch (error) {
+                    console.error('Error fetching GitHub README:', error);
+                    readmeContainer.style.display = 'none';
+                }
+            };
+            
+            const fetchRepos = async () => {
+                const projectsContainer = document.getElementById('projects-container');
+                try {
+                    const response = await fetch(`https://api.github.com/users/${username}/repos`);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const repos = await response.json();
+
+                    projectsContainer.innerHTML = '';
+                    if (repos.length === 0) {
+                        projectsContainer.innerHTML = '<p class="p-8 text-center text-xl font-semibold text-gray-400 col-span-full">No public repositories found.</p>';
+                        return;
+                    }
+
+                    repos.forEach((repo, index) => {
+                        const projectCard = document.createElement('div');
+                        projectCard.className = 'project-card rounded-lg flex flex-col justify-between';
+                        
+                        const repoId = `readme-${index}`;
+                        projectCard.innerHTML = `
+                            <div class="project-card-header">
+                                <h3 class="text-2xl font-bold text-white mb-2">${repo.name}</h3>
+                                <p class="text-gray-400 mb-4">${repo.description || 'No description provided.'}</p>
+                                <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                    <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer"
+                                       class="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 mb-2 sm:mb-0">
+                                        View on GitHub &rarr;
+                                    </a>
+                                    <button class="toggle-readme-btn text-sm font-medium text-blue-400 hover:text-white transition-colors duration-200">
+                                        Extend Description
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="${repoId}" class="readme-content">
+                                <div class="markdown-container">
+                                    </div>
+                            </div>
+                        `;
+                        projectsContainer.appendChild(projectCard);
+
+                        const toggleButton = projectCard.querySelector('.toggle-readme-btn');
+                        const readmeContentContainer = document.getElementById(repoId);
+                        const markdownContainer = readmeContentContainer.querySelector('.markdown-container');
+                        const originalProjectsTitle = projectsTitle.textContent;
+                        let readmeLoaded = false;
+
+                        toggleButton.addEventListener('click', async () => {
+                            const isExpanded = projectCard.classList.contains('expanded-card');
+
+                            if (!isExpanded) {
+                                document.body.classList.add('no-scroll');
+
+                                originalCardRect = projectCard.getBoundingClientRect();
+                                projectCard.style.position = 'fixed';
+                                projectCard.style.top = `${originalCardRect.top}px`;
+                                projectCard.style.left = `${originalCardRect.left}px`;
+                                projectCard.style.width = `${originalCardRect.width}px`;
+                                projectCard.style.height = `${originalCardRect.height}px`;
+
+                                // Trigger a reflow to ensure the initial position is set before transition
+                                projectCard.offsetWidth;
+
+                                setTimeout(() => {
+                                    projectCard.classList.add('expanded-card');
+                                    projectCard.style.top = '0';
+                                    projectCard.style.left = '0';
+                                    projectCard.style.width = '100vw';
+                                    projectCard.style.height = '100vh';
+
+                                    projectsTitle.textContent = repo.name;
+                                    readmeContentContainer.classList.add('expanded');
+                                    toggleButton.textContent = 'Hide Description';
+                                }, 10);
+                                
+                                document.querySelectorAll('.project-card').forEach(card => {
+                                    if (card !== projectCard) {
+                                        card.classList.add('scale-down-card');
+                                    }
+                                });
+
+                                if (!readmeLoaded) {
+                                    markdownContainer.innerHTML = `<h3 class="text-xl font-bold mb-4" style="margin-top: 0 !important;">${repo.name}</h3><p class="text-center text-gray-400">Loading README...</p>`;
+                                    try {
+                                        const readmeResponse = await fetch(`https://raw.githubusercontent.com/${username}/${repo.name}/main/README.md`);
+                                        if (!readmeResponse.ok) {
+                                            if (readmeResponse.status === 404) {
+                                                markdownContainer.innerHTML = `<h3 class="text-xl font-bold mb-4" style="margin-top: 0 !important;">${repo.name}</h3><p class="text-center text-gray-400">No README found for this repository.</p>`;
+                                            } else {
+                                                throw new Error('Network response was not ok');
+                                            }
+                                        } else {
+                                            const decodedContent = await readmeResponse.text();
+                                            let renderedHtml = md.render(decodedContent);
+                                            renderedHtml = replaceRelativeImageUrls(renderedHtml, username, repo.name);
+                                            markdownContainer.innerHTML = `<h3 class="text-xl font-bold mb-4" style="margin-top: 0 !important;">${repo.name}</h3>` + renderedHtml;
+                                            addCopyButtons(markdownContainer);
+                                            readmeLoaded = true;
+                                        }
+                                    } catch (error) {
+                                        console.error(`Error fetching README for ${repo.name}:`, error);
+                                        markdownContainer.innerHTML = `<h3 class="text-xl font-bold mb-4" style="margin-top: 0 !important;">${repo.name}</h3><p class="text-center text-gray-400">Failed to load README.</p>`;
+                                    }
+                                }
+                            } else {
+                                projectsTitle.textContent = originalProjectsTitle;
+                                readmeContentContainer.classList.remove('expanded');
+                                
+                                projectCard.style.top = `${originalCardRect.top}px`;
+                                projectCard.style.left = `${originalCardRect.left}px`;
+                                projectCard.style.width = `${originalCardRect.width}px`;
+                                projectCard.style.height = `${originalCardRect.height}px`;
+
+                                projectCard.classList.remove('expanded-card');
+                                document.querySelectorAll('.project-card.scale-down-card').forEach(hiddenCard => {
+                                    hiddenCard.classList.remove('scale-down-card');
+                                });
+                                toggleButton.textContent = 'Extend Description';
+
+                                const onTransitionEnd = () => {
+                                    projectCard.style.position = '';
+                                    projectCard.style.top = '';
+                                    projectCard.style.left = '';
+                                    projectCard.style.width = '';
+                                    projectCard.style.height = '';
+                                    document.body.classList.remove('no-scroll');
+                                    projectCard.removeEventListener('transitionend', onTransitionEnd);
+                                };
+                                
+                                projectCard.addEventListener('transitionend', onTransitionEnd, { once: true });
+
+                                // Fallback in case transitionend event doesn't fire
+                                setTimeout(() => {
+                                    if (projectCard.style.position === 'fixed') {
+                                        projectCard.style.position = '';
+                                        projectCard.style.top = '';
+                                        projectCard.style.left = '';
+                                        projectCard.style.width = '';
+                                        projectCard.style.height = '';
+                                        document.body.classList.remove('no-scroll');
+                                    }
+                                }, 500); // Match transition duration
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error fetching GitHub repos:', error);
+                    projectsContainer.innerHTML = '<div class="p-8 text-center col-span-full"><p class="text-xl font-semibold text-gray-400">Failed to load projects. Please try again later.</p></div>';
+                }
+            };
+
+            const musicToggleBtn = document.getElementById('music-toggle');
+            const playIcon = document.getElementById('music-icon-play');
+            const pauseIcon = document.getElementById('music-icon-pause');
+            const audio = document.getElementById('background-music');
+            
+            if (audio) {
+                let isPlaying = false;
+                
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                
+                musicToggleBtn.addEventListener('click', () => {
+                    if (isPlaying) {
+                        audio.pause();
+                        isPlaying = false;
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    } else {
+                        audio.play();
+                        isPlaying = true;
+                        pauseIcon.classList.remove('hidden');
+                        playIcon.classList.add('hidden');
+                    }
+                });
+            }
+
+            fetchProfileData();
+            fetchReadme();
+            fetchRepos();
+        });
+    </script>
+</body>
+</html>
